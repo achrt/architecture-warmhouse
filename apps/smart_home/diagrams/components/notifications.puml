@@ -1,0 +1,29 @@
+@startuml C4_Component_NotificationService
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+Container_Boundary(c1, "Notification Service") {
+  
+  Component(eventListener, "Event Listener", "Kafka Consumer", "Подписка на события из других сервисов")
+  Component(notificationProcessor, "Notification Processor", "Go", "Определяет, нужно ли отправлять уведомление, и через какой канал")
+  Component(templateEngine, "Template Engine", "Go / Liquid", "Генерация текста уведомления по шаблону")
+  Component(channelDispatcher, "Channel Dispatcher", "Go", "Передаёт сообщение в соответствующий канал (email, push)")
+  Component(settingsManager, "User Notification Settings", "Go", "Учитывает пользовательские настройки и предпочтения")
+  Component(notificationRepo, "Notification Repository", "PostgreSQL", "История уведомлений, статус доставки")
+}
+
+System_Ext(kafka, "Kafka", "Шина событий")
+System_Ext(emailService, "Email Provider")
+System_Ext(fcm, "Firebase Cloud Messaging")
+
+Rel(kafka, eventListener, "События: алерты, счета и т.д.")
+Rel(eventListener, notificationProcessor, "Обработка события")
+Rel(notificationProcessor, settingsManager, "Проверка разрешений пользователя")
+Rel(notificationProcessor, templateEngine, "Генерация текста")
+Rel(templateEngine, channelDispatcher, "Готовое сообщение")
+Rel(channelDispatcher, emailService, "Email", "SMTP/HTTPS")
+Rel(channelDispatcher, fcm, "Push", "FCM")
+Rel(notificationProcessor, notificationRepo, "Логирование отправки")
+
+@enduml

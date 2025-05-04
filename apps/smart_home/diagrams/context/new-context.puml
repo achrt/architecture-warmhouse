@@ -17,8 +17,7 @@ System_Ext(fcm, "Firebase Cloud Messaging", "Платформа доставки
 
 System_Boundary(system, "Экосистема Тёплый Дом") {
 
-  Container(webApp, "Web", "React", "Личный кабинет")
-  Container(mobApp, "Mobile App", "Flutter", "Личный кабинет")
+  Container(app, "User App", "Mobile/Web", "Личный кабинет")
 
   Container(billingService, "Billing Service", "Go", "Формирование счетов, проведение оплат, лимиты и тарифы")
   ContainerDb(billingDB, "PostgreSQL", "billing")
@@ -45,16 +44,13 @@ System_Boundary(system, "Экосистема Тёплый Дом") {
 
 
 
-
-
 ' Взаимодействия
-Rel(user, webApp, "")
-Rel(user, mobApp, "")
+Rel(user, app, "")
 
-Rel(webApp, apiGateway, "")
-Rel(mobApp, apiGateway, "")
+Rel(app, apiGateway, "")
 
-Rel(apiGateway, authService, "")
+Rel(app, authService, "Получение токена")
+Rel(apiGateway, authService, "Проверка токена")
 Rel(apiGateway, billingService, "")
 Rel(apiGateway, automationService, "")
 
@@ -63,19 +59,19 @@ Rel(iotGateway, deviceService, "Регистрация, команды, стат
 Rel(iotGateway, kafka, "Логи", "JSON")
 Rel(kafka, telemetryService,"Логи", "JSON")
 Rel(automationService, iotGateway, "Задачи на выполнение")
+Rel(kafka, automationService,"Подписка на события")
 
 Rel(deviceService, devicesDB, "RW")
 
 Rel(billingService, billingDB, "RW")
 Rel(billingService, paymentSys, "Проведение оплат")
-Rel(billingService, notificationService, "RW")
+Rel(billingService, notificationService, "Уведомления о счетах", "gRPC")
 Rel(notificationService, emailService, "Отправка писем")
 Rel(automationService, automationDB, "RW")
 Rel(telemetryService, telemetryDB, "RW")
 Rel(authService, authDB, "RW")
 
 Rel(notificationService, fcm, "Отправка push-сообщений", "HTTPS")
-Rel(fcm, mobApp, "Доставка push-уведомлений", "FCM")
 
 Rel(telemetryService, notificationService, "Отправка алертов по критическим событиям", "gRPC")
 
