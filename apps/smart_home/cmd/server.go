@@ -14,7 +14,7 @@ var serverCmd = &cobra.Command{
 	Short: "Запуск серверной части (датчики, устройства, API)",
 	Run: func(cmd *cobra.Command, args []string) {
 		dbURL := GetEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/smarthome")
-		temperatureAPIURL := GetEnv("TEMPERATURE_API_URL", "http://temperature-api:8081")
+		temperatureAPIURL := GetEnv("TEMPERATURE_API_URL", "http://localhost:8081")
 		port := GetEnv("PORT", ":8080")
 
 		database, err := db.New(dbURL)

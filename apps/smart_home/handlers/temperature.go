@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"net/http"
+	"smarthome/models"
 	"smarthome/services"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,5 +41,11 @@ func (h *TemperatureHandler) GetTemperatureByLocation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"temperature": temperature})
+	resp := models.Sensor{
+		Value:       float64(temperature),
+		LastUpdated: time.Now(),
+		Location:    location,
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
