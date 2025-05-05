@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package billing;
+
+option go_package = "github.com/achrt/architecture-warmhouse/billing/api;billingpb";
+
+message Id {
+  bytes id = 1;
+}
+
+message Invoice {
+  Id id = 1;
+  Id user_id = 2;
+  float amount = 3;
+  int64 period_start = 4;
+  int64 period_end = 5;
+  bool paid = 6;
+}
+
+message GenerateInvoiceRequest {
+  Id user_id = 1;
+}
+
+message GenerateInvoiceResponse {
+  Invoice invoice = 1;
+}
+
+message PayInvoiceRequest {
+  Id invoice_id = 1;
+}
+
+message PayInvoiceResponse {
+  bool success = 1;
+}
+
+message ListInvoicesRequest {
+  Id user_id = 1;
+}
+
+message ListInvoicesResponse {
+  repeated Invoice invoices = 1;
+}
+
+service BillingService {
+  rpc GenerateInvoice(GenerateInvoiceRequest) returns (GenerateInvoiceResponse);
+  rpc PayInvoice(PayInvoiceRequest) returns (PayInvoiceResponse);
+  rpc ListInvoices(ListInvoicesRequest) returns (ListInvoicesResponse);
+}

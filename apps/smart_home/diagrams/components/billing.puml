@@ -3,5 +3,25 @@
 
 LAYOUT_WITH_LEGEND()
 
+Container_Boundary(c1, "Billing Service") {
+  
+  Component(api, "Billing API", "gRPC", "Запрос счетов, история, оплата")
+  Component(invoiceGenerator, "Invoice Generator", "Go", "Генерация счетов по использованию")
+  Component(tariffEngine, "Tariff Engine", "Go", "Расчёт по тарифам и лимитам")
+  Component(paymentProcessor, "Payment Processor", "Go", "Проведение оплаты через платёжные шлюзы")
+  Component(billingRepo, "Billing Repository", "PostgreSQL", "Хранение счетов, транзакций, планов")
+}
+
+System_Ext(paymentSys, "Платёжная система")
+System_Ext(notificationService, "Notification Service")
+
+Rel(api, billingRepo, "Чтение/запись счетов")
+Rel(api, paymentProcessor, "Инициация оплаты")
+Rel(paymentProcessor, paymentSys, "Проведение оплаты", "HTTPS")
+
+Rel(tariffEngine, invoiceGenerator, "Вычисление стоимости")
+Rel(invoiceGenerator, billingRepo, "Сохраняет счета")
+
+Rel(invoiceGenerator, notificationService, "Уведомление о счёте", "gRPC")
 
 @enduml

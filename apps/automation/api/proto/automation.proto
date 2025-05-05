@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package automation;
+
+option go_package = "github.com/achrt/architecture-warmhouse/automation/api;automationpb";
+
+message Id {
+  bytes id = 1;
+}
+
+message Script {
+  Id id = 1;
+  Id user_id = 2;
+  string name = 3;
+  bool enabled = 4;
+  repeated Action actions = 5;
+}
+
+message Action {
+  Id id = 1;
+  Id script_id = 2;
+  ActionType type = 3;
+  string parameters_json = 4;
+}
+
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  DEVICE_COMMAND = 1;
+  SEND_NOTIFICATION = 2;
+}
+
+message CreateScriptRequest {
+  Id user_id = 1;
+  string name = 2;
+  bool enabled = 3;
+  repeated Action actions = 4;
+}
+
+message CreateScriptResponse {
+  Script script = 1;
+}
+
+message UpdateScriptRequest {
+  Id script_id = 1;
+  string name = 2;
+  bool enabled = 3;
+  repeated Action actions = 4;
+}
+
+message UpdateScriptResponse {
+  Script script = 1;
+}
+
+message DeleteScriptRequest {
+  Id script_id = 1;
+}
+
+message DeleteScriptResponse {
+  bool success = 1;
+}
+
+message GetScriptRequest {
+  Id script_id = 1;
+}
+
+message GetScriptResponse {
+  Script script = 1;
+}
+
+message ListScriptsRequest {
+  Id user_id = 1;
+}
+
+message ListScriptsResponse {
+  repeated Script scripts = 1;
+}
+
+message ToggleScriptRequest {
+  Id script_id = 1;
+  bool enabled = 2;
+}
+
+message ToggleScriptResponse {
+  Script script = 1;
+}
+
+service AutomationService {
+  rpc CreateScript(CreateScriptRequest) returns (CreateScriptResponse);
+  rpc UpdateScript(UpdateScriptRequest) returns (UpdateScriptResponse);
+  rpc DeleteScript(DeleteScriptRequest) returns (DeleteScriptResponse);
+  rpc GetScript(GetScriptRequest) returns (GetScriptResponse);
+  rpc ListScripts(ListScriptsRequest) returns (ListScriptsResponse);
+  rpc ToggleScript(ToggleScriptRequest) returns (ToggleScriptResponse);
+}

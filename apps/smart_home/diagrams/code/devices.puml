@@ -1,0 +1,57 @@
+@startuml DeviceService_ClassDiagram
+
+title DeviceService управление устройствами
+
+' api
+class DeviceService {
+  +List<Device> devices
+  --
+  +registerDevice()
+  +authenticateDevice()
+  +updateConfig()
+  +sendCommand()
+  +getDeviceState(): DeviceState
+}
+
+class Device {
+  +String deviceId
+  +String type
+  +DeviceConfig config
+  +DeviceState state
+  --
+  +applyConfig()
+  +updateState()
+  +executeCommand()
+}
+
+' параметры пока что в мапе, возможно будут выделены в поля
+class DeviceConfig {
+  +Map<String, String> parameters 
+  +Date updatedAt
+  --
+  +update()
+}
+
+class DeviceState {
+  +String status
+  +Date lastSeen
+  +Map<String, String> metrics
+  --
+  +updateStatus()
+}
+
+class DeviceAuthToken {
+  +String token
+  +Date issuedAt
+  +Date expiresAt
+  --
+  +isValid(): boolean
+}
+
+DeviceService "1" -- "0..*" Device : manages
+Device "1" -- "1" DeviceConfig : has
+Device "1" -- "1" DeviceState : has
+DeviceService --> DeviceAuthToken : uses
+
+@enduml
+

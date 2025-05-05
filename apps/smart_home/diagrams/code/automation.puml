@@ -1,0 +1,77 @@
+@startuml AutomationEngine_ClassDiagram
+
+title Automation Service сценарии
+
+' api
+class AutomationService { 
+  +List<Trigger> triggers
+  --
+  +createScript()
+  +updateScript()
+  +deleteScript()
+  +evaluateEvent(Event): List<TriggerMatch>
+  +runScheduledTriggers(DateTime)
+}
+
+' что должно выполниться и при каких условиях
+class Trigger {
+  +String id
+  +TriggerType type
+  +Condition condition
+  +List<Action> actions
+  --
+  +isMatch(Event): boolean
+}
+
+enum TriggerType {
+  EVENT
+  SCHEDULE
+}
+
+' выражение или логика фильтрации
+class Condition {
+  +String expression
+  --
+  +evaluate(Event): boolean
+}
+
+class Action {
+  +ActionType type
+  +Map<String, String> parameters
+  --
+  +execute()
+}
+
+enum ActionType {
+  DEVICE_COMMAND
+  SEND_NOTIFICATION
+}
+
+' входящее событие (по данным с датчика)
+class Event {
+  +String source
+  +Date timestamp
+  +Map<String, String> payload
+}
+
+class Scheduler {
+  +Map<DateTime, List<Trigger>> scheduled
+  --
+  +checkDue(DateTime): List<Trigger>
+}
+
+' 
+class Dispatcher {
+  --
+  +dispatch(List<Action>)
+}
+
+AutomationService "1" -- "0..*" Trigger : manages
+Trigger "1" -- "1" Condition : has
+Trigger "1" -- "0..*" Action : fires
+AutomationService --> Scheduler : uses
+AutomationService --> Dispatcher : uses
+AutomationService --> Event : consumes
+Dispatcher --> Action : executes
+
+@enduml

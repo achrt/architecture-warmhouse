@@ -1,0 +1,257 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "API Gateway",
+      "description": "Фасадный REST API для пользовательских приложений"
+    },
+    "host": "api.smarthome.com",
+    "basePath": "/api/v1",
+    "schemes": ["https"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "securityDefinitions": {
+      "BearerAuth": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "paths": {
+      "/scripts": {
+        "get": {
+          "summary": "Получить список сценариев",
+          "responses": {
+            "200": {
+              "description": "Список получен",
+              "schema": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/Script" }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Создать новый сценарий",
+          "parameters": [
+            {
+              "in": "body",
+              "name": "script",
+              "required": true,
+              "schema": { "$ref": "#/definitions/Script" }
+            }
+          ],
+          "responses": {
+            "201": { "description": "Сценарий создан" }
+          }
+        }
+      },
+      "/scripts/{id}": {
+        "put": {
+          "summary": "Обновить сценарий",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "type": "string",
+              "required": true
+            },
+            {
+              "in": "body",
+              "name": "script",
+              "required": true,
+              "schema": { "$ref": "#/definitions/Script" }
+            }
+          ],
+          "responses": {
+            "200": { "description": "Сценарий обновлён" }
+          }
+        },
+        "delete": {
+          "summary": "Удалить сценарий",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "responses": {
+            "204": { "description": "Сценарий удалён" }
+          }
+        }
+      },
+      "/billing/invoices": {
+        "get": {
+          "summary": "Получить список счетов",
+          "responses": {
+            "200": {
+              "description": "Счета получены",
+              "schema": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/Invoice" }
+              }
+            }
+          }
+        }
+      },
+      "/billing/pay": {
+        "post": {
+          "summary": "Оплатить счёт",
+          "parameters": [
+            {
+              "in": "body",
+              "name": "payment",
+              "required": true,
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "invoice_id": { "type": "string" }
+                },
+                "required": ["invoice_id"]
+              }
+            }
+          ],
+          "responses": {
+            "200": { "description": "Оплата прошла успешно" }
+          }
+        }
+      },
+      "/devices": {
+        "get": {
+          "summary": "Список всех устройств пользователя",
+          "responses": {
+            "200": {
+              "description": "Устройства получены",
+              "schema": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/Device" }
+              }
+            }
+          }
+        }
+      },
+      "/houses/{houseId}/devices": {
+        "get": {
+          "summary": "Список устройств в доме",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "houseId",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Устройства дома получены",
+              "schema": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/Device" }
+              }
+            }
+          }
+        }
+      },
+      "/rooms/{roomId}/devices": {
+        "get": {
+          "summary": "Список устройств в комнате",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "roomId",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Устройства в комнате получены",
+              "schema": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/Device" }
+              }
+            }
+          }
+        }
+      },
+      "/devices/{id}/status": {
+        "get": {
+          "summary": "Получить статус устройства",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Статус получен",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["ONLINE", "OFFLINE", "ERROR"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Script": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "enabled": { "type": "boolean" },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "parameters": { "type": "object" }
+              }
+            }
+          }
+        }
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "amount": { "type": "number" },
+          "period_start": { "type": "string" },
+          "period_end": { "type": "string" },
+          "paid": { "type": "boolean" }
+        }
+      },
+      "Device": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "house_id": { "type": "string" },
+          "room_id": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["ONLINE", "OFFLINE", "ERROR"]
+          }
+        }
+      }
+    }
+  }
+  
