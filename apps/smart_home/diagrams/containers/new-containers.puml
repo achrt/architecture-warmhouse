@@ -6,14 +6,13 @@ LAYOUT_WITH_LEGEND()
 Person(user, "User", "Пользователь системы умного дома")
 
 rectangle "Дом1" {
-  System_Ext(iotDevice1, "Устройство1")
-  System_Ext(iotDevice2, "Устройство2")
+  System_Ext(iotDevice1, "Устройство1", "Термостат")
+  System_Ext(iotDevice2, "Устройство2", "Датчик температуры")
 }
 
 System_Ext(paymentSys, "Внешняя платёжная система")
 System_Ext(emailService, "Сервис отправки email")
 System_Ext(fcm, "Firebase Cloud Messaging", "Платформа доставки push-уведомлений")
-
 
 System_Boundary(system, "Экосистема Тёплый Дом") {
 
@@ -36,13 +35,11 @@ System_Boundary(system, "Экосистема Тёплый Дом") {
 
   Container(notificationService, "Notification Service", "Go", "Отправка алертов, уведомлений, писем")
   
-  Container(iotGateway, "IoT Gateway", "", "для физических устройств")
+  Container(iotGateway, "IoT Gateway", "Go", "Адаптер для устройств, асинхронная доставка команд")
   Container(apiGateway, "Api Gateway", "REST/GraphQL")
 
   Container(kafka, "Kafka", "Apache Kafka", "Event streaming / message bus")
 }
-
-
 
 ' Взаимодействия
 Rel(user, app, "")
@@ -54,9 +51,16 @@ Rel(apiGateway, authService, "Проверка токена")
 Rel(apiGateway, billingService, "")
 Rel(apiGateway, automationService, "")
 
+' ---- Обновленный блок ----
+Rel(deviceService, kafka, "Публикация команд в iot.commands")
+Rel(automationService, kafka, "Публикация задач в iot.commands")
+Rel(kafka, iotGateway, "Чтение команд из iot.commands")
+Rel(iotGateway, iotDevice1, "Отправка команды", "MQTT/HTTP")
+Rel(iotGateway, iotDevice2, "Отправка команды", "MQTT/HTTP")
+Rel(iotGateway, kafka, "Публикация статуса в iot.responses")
+Rel(kafka, deviceService, "Чтение ответов из iot.responses")
+' ---------------------------
 
-Rel(iotGateway, deviceService, "Регистрация, команды, статус")
-Rel(iotGateway, kafka, "Логи", "JSON")
 Rel(kafka, telemetryService,"Логи", "JSON")
 Rel(automationService, iotGateway, "Задачи на выполнение")
 Rel(kafka, automationService,"Подписка на события")
@@ -74,9 +78,5 @@ Rel(authService, authDB, "RW")
 Rel(notificationService, fcm, "Отправка push-сообщений", "HTTPS")
 
 Rel(telemetryService, notificationService, "Отправка алертов по критическим событиям", "gRPC")
-
-' Дом1
-Rel(iotGateway, iotDevice1, "Управление устройствами")
-Rel(iotGateway, iotDevice2, "Управление устройствами")
 
 @enduml

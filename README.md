@@ -35,7 +35,7 @@
 
 ### 3. Определение доменов и границы контекстов
 
-__Домен: Управление отоплением__ 
+__Домен: Управление устройствами__ 
 * контроль температуры
 * установка режима отопления
 * получение данных с датчиков
@@ -148,6 +148,7 @@ Devices: apps/devices/api/proto/devices.proto
 Gateway: apps/gateway/api/swagger.json
 Notifications: apps/notifications/api/proto/notifications.proto
 Telemetry: apps/telemetry/api/telemetry-asyncapi.yaml
+Iot-Gateway: apps/iot-gateway/async-api.yaml
 
 # Задание 5. Работа с docker и docker-compose
 
