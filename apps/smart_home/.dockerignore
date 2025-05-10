@@ -1,0 +1,36 @@
+# ИСКЛЮЧАЕМ ЛИШНИЕ ФАЙЛЫ
+
+# Системные
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Бинарники
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.a
+*.o
+
+# Go build
+bin/
+dist/
+build/
+smarthome
+
+# Temp files
+*.log
+*.tmp
+
+# Тестовые артефакты
+coverage.*
+*.test

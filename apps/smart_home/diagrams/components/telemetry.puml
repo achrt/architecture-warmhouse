@@ -1,0 +1,23 @@
+@startuml C4_Component_TelemetryService
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+Container_Boundary(c1, "Telemetry Service") {
+
+  Component(kafkaConsumer, "Kafka Consumer", "Go", "Читает события с устройств из Kafka и парсит")
+  Component(dataWriter, "Data Writer", "Go", "Преобразует и сохраняет телеметрию в ClickHouse")
+  Component(dataQueryAPI, "Telemetry API", "gRPC", "Выдаёт данные по запросу пользователя (графики и истории)")
+  Component(alertGenerator, "Alert Generator", "Go", "Оценивает значения и генерирует критические события")
+  Component(telemetryRepo, "Telemetry Repository", "ClickHouse", "Хранение телеметрии и событий")
+}
+
+System_Ext(kafka, "Kafka", "Событийная шина от IoT Gateway")
+System_Ext(notificationService, "Notification Service", "Получает алерты от Telemetry")
+
+Rel(kafka, kafkaConsumer, "Telemetry events", "Kafka topic")
+Rel(kafkaConsumer, dataWriter, "Передача данных")
+Rel(dataWriter, telemetryRepo, "Запись телеметрии", "Insert")
+Rel(dataQueryAPI, telemetryRepo, "Чтение телеметрии", "Select")
+Rel(dataWriter, alertGenerator, "Проверка критических значений")
+Rel(alertGenerator, notificationService, "Отправка алерта", "gRPC/HTTP")

@@ -1,0 +1,15 @@
+@startuml C4_Context
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "Пользователь", "Владелец умного дома")
+System(homeSystem, "Тёплый дом", "Система управления умным домом")
+
+System_Ext(billingSystem, "Billing System", "Генерация счетов, прием и проверка оплат")
+System_Ext(home1, "Дом 1", "Реле и датчики температуры")
+System_Ext(home2, "Дом 2", "Реле и датчики температуры")
+
+Rel(user, homeSystem, "Управление отоплением и устройствами")
+Rel(homeSystem, billingSystem, "Взаимодействие с оплатой")
+Rel(homeSystem, home1, "Управление устройствами")
+Rel(homeSystem, home2, "Управление устройствами")
+@enduml

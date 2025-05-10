@@ -1,0 +1,82 @@
+@startuml C4_Container
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+Person(user, "User", "Пользователь системы умного дома")
+
+rectangle "Дом1" {
+  System_Ext(iotDevice1, "Устройство1", "Термостат")
+  System_Ext(iotDevice2, "Устройство2", "Датчик температуры")
+}
+
+System_Ext(paymentSys, "Внешняя платёжная система")
+System_Ext(emailService, "Сервис отправки email")
+System_Ext(fcm, "Firebase Cloud Messaging", "Платформа доставки push-уведомлений")
+
+System_Boundary(system, "Экосистема Тёплый Дом") {
+
+  Container(app, "User App", "Mobile/Web", "Личный кабинет")
+
+  Container(billingService, "Billing Service", "Go", "Формирование счетов, проведение оплат, лимиты и тарифы")
+  ContainerDb(billingDB, "PostgreSQL", "billing")
+  
+  Container(authService, "Auth Service", "Go", "Регистрация и авторизация пользователей")
+  ContainerDb(authDB, "PostgreSQL", "authentication")
+
+  Container(deviceService, "Device Management Service", "Go", "Регистрация, авторизация, настройка устройств")
+  ContainerDb(devicesDB, "PostgreSQL", "devices")
+
+  Container(telemetryService, "Telemetry Service", "Kafka", "Сбор и хранение телеметрии, история состояний.")
+  ContainerDb(telemetryDB, "ClickHouse", "телеметрия")
+
+  Container(automationService, "Automation Engine", "Go", "Создание и выполнение пользовательских сценариев")
+  ContainerDb(automationDB, "PostgreSQL", "scripts")
+
+  Container(notificationService, "Notification Service", "Go", "Отправка алертов, уведомлений, писем")
+  
+  Container(iotGateway, "IoT Gateway", "Go", "Адаптер для устройств, асинхронная доставка команд")
+  Container(apiGateway, "Api Gateway", "REST/GraphQL")
+
+  Container(kafka, "Kafka", "Apache Kafka", "Event streaming / message bus")
+}
+
+' Взаимодействия
+Rel(user, app, "")
+
+Rel(app, apiGateway, "")
+
+Rel(app, authService, "Получение токена")
+Rel(apiGateway, authService, "Проверка токена")
+Rel(apiGateway, billingService, "")
+Rel(apiGateway, automationService, "")
+
+' ---- Обновленный блок ----
+Rel(deviceService, kafka, "Публикация команд в iot.commands")
+Rel(automationService, kafka, "Публикация задач в iot.commands")
+Rel(kafka, iotGateway, "Чтение команд из iot.commands")
+Rel(iotGateway, iotDevice1, "Отправка команды", "MQTT/HTTP")
+Rel(iotGateway, iotDevice2, "Отправка команды", "MQTT/HTTP")
+Rel(iotGateway, kafka, "Публикация статуса в iot.responses")
+Rel(kafka, deviceService, "Чтение ответов из iot.responses")
+' ---------------------------
+
+Rel(kafka, telemetryService,"Логи", "JSON")
+Rel(automationService, iotGateway, "Задачи на выполнение")
+Rel(kafka, automationService,"Подписка на события")
+
+Rel(deviceService, devicesDB, "RW")
+
+Rel(billingService, billingDB, "RW")
+Rel(billingService, paymentSys, "Проведение оплат")
+Rel(billingService, notificationService, "Уведомления о счетах", "gRPC")
+Rel(notificationService, emailService, "Отправка писем")
+Rel(automationService, automationDB, "RW")
+Rel(telemetryService, telemetryDB, "RW")
+Rel(authService, authDB, "RW")
+
+Rel(notificationService, fcm, "Отправка push-сообщений", "HTTPS")
+
+Rel(telemetryService, notificationService, "Отправка алертов по критическим событиям", "gRPC")
+
+@enduml

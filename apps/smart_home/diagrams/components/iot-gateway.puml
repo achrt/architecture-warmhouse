@@ -1,0 +1,25 @@
+@startuml C4_Component_IoT_Gateway
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+System_Boundary(c1, "IoT Gateway") {
+
+  Component(commandConsumer, "Command Consumer", "Kafka Consumer", "Чтение команд из iot.commands")
+  Component(deviceAdapter, "Device Adapter", "Go", "Отправка команд на физические устройства")
+  Component(responseProducer, "Response Producer", "Kafka Producer", "Публикация статуса выполнения в iot.responses")
+  Component(deviceRegistry, "Device Registry", "Go", "Хранение данных об устройствах (IP, протоколы)")
+  
+}
+
+System_Ext(kafka, "Kafka", "Event streaming platform")
+System_Ext(iotDevice1, "Device 1", "Термостат")
+System_Ext(iotDevice2, "Device 2", "Датчик температуры")
+
+' Взаимодействия между компонентами
+Rel(kafka, commandConsumer, "Подписка на iot.commands", "JSON")
+Rel(commandConsumer, deviceRegistry, "Получение информации об устройстве", "gRPC")
+Rel(commandConsumer, deviceAdapter, "Отправка команды на устройство", "MQTT/HTTP")
+BiRel(deviceAdapter, iotDevice1, "Выполнение команды", "MQTT/HTTP")
+BiRel(deviceAdapter, iotDevice2, "Выполнение команды", "MQTT/HTTP")
+Rel(deviceAdapter, responseProducer, "Публикация результата выполнения", "JSON")
+Rel(responseProducer, kafka, "Запись в iot.responses", "JSON")
+@enduml

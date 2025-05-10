@@ -1,0 +1,20 @@
+@startuml C4_Container
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+System_Boundary(softwareSystem, "Тёплый дом — система управления") {
+
+  Container(webApp, "Web Application", "React", "Личный кабинет")
+  Container(apiApp, "Backend Application", "Go", "Бизнес-логика и управление устройствами")
+  ContainerDb(database, "PostgreSQL", "Данные пользователей, устройств, счета")
+}
+
+System_Ext(billingSystem, "Billing System", "Генерация счетов, приём и проверка оплат")
+System_Ext(home1, "Дом 1", "Реле и датчики температуры")
+System_Ext(home2, "Дом 2", "Реле и датчики температуры")
+
+Rel(webApp, apiApp, "REST API")
+Rel(apiApp, database, "Чтение и запись данных")
+Rel(apiApp, billingSystem, "Биллинг API")
+Rel(apiApp, home1, "MQTT / HTTP", "Управление устройствами")
+Rel(apiApp, home2, "MQTT / HTTP", "Управление устройствами")
+@enduml

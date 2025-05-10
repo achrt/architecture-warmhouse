@@ -1,0 +1,26 @@
+@startuml C4_Component_AuthService_Updated
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+Container_Boundary(c1, "Auth Service") {
+
+  Component(authAPI, "Auth API", "REST", "Публичный интерфейс: регистрация, логин, refresh")
+  Component(userManager, "User Manager", "Go", "Создание и управление учётными записями")
+  Component(tokenService, "Token Service", "Go + JWT", "Генерация и валидация JWT")
+  Component(sessionManager, "Session Manager", "Go", "Хранение refresh токенов, logout")
+  Component(authRepo, "Auth Repository", "PostgreSQL", "Пользователи, токены, сессии")
+}
+
+Person(user, "User", "Пользователь мобильного/веб-приложения")
+
+Rel(user, authAPI, "Регистрация, логин, обновление токена", "HTTPS")
+Rel(authAPI, userManager, "Регистрация и управление пользователем")
+Rel(authAPI, tokenService, "Генерация и валидация access/refresh токенов")
+Rel(authAPI, sessionManager, "Создание и отзыв refresh токенов")
+
+Rel(tokenService, authRepo, "Чтение/запись refresh токенов")
+Rel(userManager, authRepo, "Чтение/запись пользователей")
+Rel(sessionManager, authRepo, "Чтение/запись сессий")
+
+@enduml

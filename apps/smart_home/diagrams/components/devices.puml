@@ -1,0 +1,35 @@
+@startuml C4_Component_DeviceService
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+System_Boundary(system, "Экосистема Тёплый Дом") {
+ Container(deviceService, "Device Management Service", "Go", "Регистрация, авторизация, настройка устройств")
+}
+
+System_Ext(iotGateway, "IoT Gateway", "Физический уровень взаимодействия с устройствами")
+
+Container_Boundary(deviceService, "Device Management Service") {
+ Component(api, "Device API", "gRPC", "Обработка внешних запросов для управления устройствами")
+ Component(commandHandler, "Command Handler", "Go", "Обработка входящих команд управления устройствами")
+ Component(stateManager, "State Manager", "Go", "Отслеживание и обновление состояния устройства")
+ Component(authModule, "Device Auth Module", "Go", "Аутентификация и регистрация устройств")
+ Component(configManager, "Config Manager", "Go", "Управление конфигурацией устройства (настройки, расписания)")
+ Component(deviceRepo, "Device Repository", "PostgreSQL", "Чтение и запись информации об устройствах")
+}
+
+
+
+Rel(api, authModule, "Регистрация и аутентификация")
+Rel(api, configManager, "Изменение конфигурации")
+Rel(api, commandHandler, "Передача команд")
+Rel(api, stateManager, "Получение состояния")
+
+Rel(authModule, deviceRepo, "Запись/чтение данных об устройстве")
+Rel(configManager, deviceRepo, "Чтение/запись конфигурации")
+Rel(stateManager, deviceRepo, "Чтение/запись статуса")
+
+Rel(commandHandler, iotGateway, "Отправка команды")
+Rel(iotGateway, stateManager, "Событие об изменении статуса")
+
+@enduml

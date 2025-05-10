@@ -1,0 +1,29 @@
+@startuml C4_Component_AutomationEngine
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+Container_Boundary(c1, "Automation Engine") {
+  
+  Component(api, "Automation API", "GraphQL", "Создание, редактирование и удаление пользовательских сценариев")
+  Component(scriptRepo, "Script Repository", "PostgreSQL", "Хранение сценариев и правил")
+  Component(triggerEvaluator, "Trigger Evaluator", "Go", "Проверяет условия и запускает сценарии")
+  Component(scheduleManager, "Schedule Manager", "Go + Cron", "Обрабатывает отложенные и периодические триггеры")
+  Component(eventConsumer, "Event Consumer", "Kafka Consumer", "Подписка на события от Telemetry и других сервисов")
+  Component(actionDispatcher, "Action Dispatcher", "Go", "Выполняет действия по сценарию (команды, уведомления и т.д.)")
+}
+
+System_Ext(kafka, "Kafka", "Событийная шина")
+System_Ext(deviceService, "Device Management Service")
+System_Ext(notificationService, "Notification Service")
+
+Rel(api, scriptRepo, "Чтение и запись сценариев")
+Rel(api, triggerEvaluator, "Обновление активных триггеров")
+Rel(kafka, eventConsumer, "Telemetry, billing, etc")
+Rel(eventConsumer, triggerEvaluator, "Проверка условий по событиям")
+Rel(scheduleManager, triggerEvaluator, "Срабатывание по таймеру")
+Rel(triggerEvaluator, actionDispatcher, "Запуск действий")
+Rel(actionDispatcher, deviceService, "Управление устройствами", "gRPC")
+Rel(actionDispatcher, notificationService, "Отправка уведомлений", "gRPC")
+
+@enduml

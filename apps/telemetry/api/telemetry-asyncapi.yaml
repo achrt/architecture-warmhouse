@@ -1,0 +1,56 @@
+asyncapi: "2.6.0"
+info:
+  title: Telemetry Service
+  version: "1.0.0"
+  description: |
+    Сервис, который читает данные телеметрии от IoT-устройств через Kafka.
+
+servers:
+  telemetry-bus:
+    url: kafka:9092
+    protocol: kafka
+    description: Kafka брокер телеметрии
+
+channels:
+  telemetry.device.data:
+    description: Канал с телеметрией от устройств
+    subscribe:
+      summary: Подписка на телеметрию с устройств
+      operationId: handleTelemetryEvent
+      message:
+        $ref: '#/components/messages/TelemetryEvent'
+
+components:
+  messages:
+    TelemetryEvent:
+      name: TelemetryEvent
+      title: Данные телеметрии
+      summary: Событие телеметрии, генерируемое IoT-устройствами
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - deviceId
+          - timestamp
+          - metric
+          - value
+        properties:
+          deviceId:
+            type: string
+            format: uuid
+            description: Уникальный идентификатор устройства
+          timestamp:
+            type: string
+            format: date-time
+            description: Время измерения
+          metric:
+            type: string
+            description: Тип метрики (temperature, humidity, etc)
+          value:
+            type: number
+            description: Значение метрики
+
+  schemas:
+    DeviceId:
+      type: string
+      format: uuid

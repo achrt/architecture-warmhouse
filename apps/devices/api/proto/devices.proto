@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package device;
+
+option go_package = "github.com/achrt/architecture-warmhouse/your-org/device/api;devicepb";
+
+message Id {
+  bytes id = 1;
+}
+
+message Device {
+  Id id = 1;
+  Id house_id = 2;
+  Id type_id = 3;
+  string serial_number = 4;
+  string name = 5;
+  DeviceStatus status = 6;
+}
+
+enum DeviceStatus {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_ONLINE = 1;
+  STATUS_OFFLINE = 2;
+  STATUS_ERROR = 3;
+}
+
+message RegisterDeviceRequest {
+  Id house_id = 1;
+  Id type_id = 2;
+  string serial_number = 3;
+  string name = 4;
+}
+
+message RegisterDeviceResponse {
+  Device device = 1;
+}
+
+message GetDeviceRequest {
+  Id device_id = 1;
+}
+
+message GetDeviceResponse {
+  Device device = 1;
+}
+
+message ListDevicesRequest {
+  Id house_id = 1;
+}
+
+message ListDevicesResponse {
+  repeated Device devices = 1;
+}
+
+service DeviceService {
+  rpc RegisterDevice(RegisterDeviceRequest) returns (RegisterDeviceResponse);
+  rpc GetDevice(GetDeviceRequest) returns (GetDeviceResponse);
+  rpc ListDevices(ListDevicesRequest) returns (ListDevicesResponse);
+}

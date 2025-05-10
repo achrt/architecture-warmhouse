@@ -1,0 +1,208 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Auth Service API",
+        "description": "REST API для аутентификации и авторизации пользователей"
+    },
+    "host": "auth.warmhouse.com",
+    "basePath": "/api/v1",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/register": {
+            "post": {
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "user",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "email",
+                                "password"
+                            ],
+                            "properties": {
+                                "email": {
+                                    "type": "string"
+                                },
+                                "password": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Пользователь создан"
+                    },
+                    "400": {
+                        "description": "Ошибка валидации"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "summary": "Логин",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "credentials",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "email",
+                                "password"
+                            ],
+                            "properties": {
+                                "email": {
+                                    "type": "string"
+                                },
+                                "password": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный вход",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "access_token": {
+                                    "type": "string"
+                                },
+                                "refresh_token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неверные учётные данные"
+                    }
+                }
+            }
+        },
+        "/refresh": {
+            "post": {
+                "summary": "Обновить access-токен",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "token",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "refresh_token"
+                            ],
+                            "properties": {
+                                "refresh_token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Токен обновлён",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "access_token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Недействительный refresh-токен"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "summary": "Выход из системы",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "type": "string",
+                        "required": true,
+                        "description": "Текущий access-токен"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Успешно"
+                    }
+                }
+            }
+        },
+        "/userinfo": {
+            "get": {
+                "summary": "Получить информацию о текущем пользователе",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "type": "string",
+                        "required": true,
+                        "description": "Bearer access-токен"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные пользователя",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "email": {
+                                    "type": "string"
+                                },
+                                "created_at": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Токен недействителен"
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "bearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
+}

@@ -1,0 +1,76 @@
+@startuml ER_Ecosystem
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+
+hide circle
+
+title Диаграмма основных сущностей
+
+table(User) {
+  primary_key(id): UUID
+  email: String
+  password_hash: String
+  created_at: DateTime
+}
+
+table(House) {
+  primary_key(id): UUID
+  user_id: UUID
+  name: String
+  address: String
+}
+
+table(Room) {
+  primary_key(id): UUID
+  house_id: UUID
+  name: String
+}
+
+table(Device) {
+  primary_key(id): UUID
+  house_id: UUID
+  room_id: UUID
+  type_id: UUID
+  serial_number: String
+  status: String
+  name: String
+}
+
+table(DeviceType) {
+  primary_key(id): UUID
+  name: String
+  description: String
+}
+
+table(TelemetryData) {
+  primary_key(id): UUID
+  device_id: UUID
+  timestamp: DateTime
+  metric: String
+  value: Float
+}
+
+table(Script) {
+  primary_key(id): UUID
+  user_id: UUID
+  name: String
+  enabled: Boolean
+}
+
+table(Action) {
+  primary_key(id): UUID
+  script_id: UUID
+  type: String
+  parameters: Json
+}
+
+' Связи
+User ||--o{ House : owns
+House ||--o{ Room : contains
+Room ||--o{ Device : contains
+Device }o--|| DeviceType : is
+Device ||--o{ TelemetryData : generates
+User ||--o{ Script : defines
+Script ||--o{ Action : triggers
+
+@enduml

@@ -1,0 +1,104 @@
+asyncapi: '2.4.0'
+info:
+  title: IoT Gateway API
+  version: '1.0.0'
+  description: |
+    Асинхронное взаимодействие с IoT устройствами через топики Kafka:
+    - `iot.commands` — для отправки команд на устройства
+    - `iot.responses` — для получения ответов (успех или ошибка)
+  license:
+    name: MIT
+
+servers:
+  development:
+    url: kafka:9092
+    protocol: kafka
+
+channels:
+  iot.commands:
+    description: Команды на устройства
+    publish:
+      operationId: publishCommand
+      summary: Публикация команды в устройство
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            deviceId:
+              type: string
+              description: ID устройства
+            command:
+              type: string
+              description: Тип команды (e.g. "TURN_ON", "TURN_OFF", "SET_TEMPERATURE")
+            parameters:
+              type: object
+              description: Параметры команды
+              example: 
+                temperature: 23
+                mode: "eco"
+          required:
+            - deviceId
+            - command
+
+  iot.responses:
+    description: Ответы от устройств
+    subscribe:
+      operationId: subscribeToResponses
+      summary: Чтение статусов выполнения команд
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            deviceId:
+              type: string
+              description: ID устройства
+            status:
+              type: string
+              description: Статус выполнения команды (SUCCESS, ERROR)
+            message:
+              type: string
+              description: Описание ошибки или статус
+            timestamp:
+              type: string
+              format: date-time
+              description: Время ответа
+          required:
+            - deviceId
+            - status
+            - timestamp
+
+components:
+  messages:
+    DeviceCommand:
+      summary: Команда на устройство
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          deviceId:
+            type: string
+            description: ID устройства
+          command:
+            type: string
+            description: Команда для устройства
+          parameters:
+            type: object
+            description: Дополнительные параметры
+
+    DeviceResponse:
+      summary: Ответ от устройства
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          deviceId:
+            type: string
+          status:
+            type: string
+          message:
+            type: string
+          timestamp:
+            type: string
+            format: date-time
